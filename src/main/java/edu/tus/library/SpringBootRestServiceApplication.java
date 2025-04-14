@@ -11,11 +11,4 @@ public class SpringBootRestServiceApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(SpringBootRestServiceApplication.class, args);
 	}
-	
-
-	
-	
-	
-	   
-
 }
