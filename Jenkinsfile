@@ -5,7 +5,7 @@ node('master'){
 
     stage('Static Code Analysis'){
         withSonarQubeEnv('sonarqube') {
-            sh 'sonar-scanner'
+            sh 'sonar-scanner -Dsonar.projectVersion=$BUILD_NUMBER''
         }
     }
 }
