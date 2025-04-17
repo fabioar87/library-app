@@ -1,11 +1,16 @@
 node('master'){
+
+    environment {
+        SONAR_TOKEN = credentials('SONAR_TOKEN')
+    }
+
     stage('Checkout'){
         checkout scm
     }
 
     stage('Quality analysis') {
         withSonarQubeEnv('sonarqube') {
-            sh '/opt/maven/bin/mvn clean verify sonar:sonar'
+            sh '/opt/maven/bin/mvn clean verify sonar:sonar -Dsonar.login=${SONAR_TOKEN}'
         }
     }
 
