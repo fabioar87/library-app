@@ -5,7 +5,7 @@ node('master'){
 
     stage('Build') {
         // sh 'mvn clean install'
-        sh '/usr/bin/mvn clean install'
+        sh '/opt/maven/bin/mvn clean install'
     }
 
 //     stage('Static Code Analysis'){
