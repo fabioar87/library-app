@@ -41,7 +41,7 @@ node('master'){
             sh "docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}"
             sh "docker build -t ${image_name}:${tag} ."
             sh "docker push ${image_name}:${tag}"
-            sh "docker tag ${image_name}:{tag} ${image_name}:latest"
+            sh "docker tag ${image_name}:${tag} ${image_name}:latest"
             sh "docker push ${image_name}:latest"
         }
     }
