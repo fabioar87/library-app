@@ -1,7 +1,7 @@
 node('master'){
 
     environment {
-        SONAR_TOKEN = credentials('SONAR_TOKEN')
+        LIBRARY_APP_TOKEN = credentials('LIBRARY_APP_TOKEN')
     }
 
     stage('Checkout'){
