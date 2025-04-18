@@ -2,7 +2,8 @@ node('master'){
 
     environment {
         LIBRARY_APP_TOKEN = credentials('LIBRARY_APP_TOKEN')
-        DOCKERHUB_CREDENTIALS = credentials('docker-hub')
+        DOCKERHUB_CREDENTIALS_PSW = credentials('docker-hub')
+        DOCKERHUB_CREDENTIALS_USR = 'fabiomatcomp'
         IMAGE_NAME = 'fabiomatcomp/library-service'
     }
 
@@ -37,7 +38,7 @@ node('master'){
         def commitHash = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
         def tag = "${commitHash}-${env.BUILD_NUMBER}"
         sh '''
-            docker login -u $DOCKERHUB_CREDENTIALS_USR -p $DOCKERHUB_CREDENTIALS_PSW
+            docker login --username $DOCKERHUB_CREDENTIALS --password $DOCKERHUB_CREDENTIALS_PSW
             docker build -t $IMAGE_NAME:$tag .
             docker push $IMAGE_NAME:$tag
             docker tag $IMAGE_NAME:$tag $IMAGE_NAME:latest
