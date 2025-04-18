@@ -1,0 +1,36 @@
+---
+- name: Test Ansible connectivity
+  hosts: all
+  gather_facts: no
+  tasks:
+    - name: Ping target
+      ansible.builtin.ping:
+
+- name: Deploy library service container
+  hosts: webservers
+  become: yes
+  vars:
+    image_name: fabiomatcomp/library-service
+    image_tag: latest  # or dynamically generated tag
+    container_name: library-app
+    container_port: 8081
+    host_port: 8081
+  tasks:
+    - name: Pull Docker image from Docker Hub
+      docker_image:
+        name: "{{ image_name }}"
+        tag: "{{ image_tag }}"
+        source: pull
+    - name: Stop and remove existing container (if any)
+      docker_container:
+        name: "{{ container_name }}"
+        state: absent
+        force_kill: true
+    - name: Run Docker container
+      docker_container:
+        name: "{{ container_name }}"
+        image: "{{ image_name }}:{{ image_tag }}"
+        state: started
+        restart_policy: always
+        ports:
+          - "{{ host_port }}:{{ container_port }}"

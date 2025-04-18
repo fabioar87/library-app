@@ -27,7 +27,29 @@ node('master'){
         sh '/opt/maven/bin/mvn org.owasp:dependency-check-maven:check'
     }
 
-    stage('Build') {
+    stage('Build artifact') {
         sh '/opt/maven/bin/mvn clean install'
+    }
+
+    stage('Build and push image') {
+        def commitHash = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+        def tag = "${commitHash}-${env.BUILD_NUMBER}"
+        def image_name = 'fabiomatcomp/library-service'
+
+        withCredentials([usernamePassword(credentialsId: 'docker-hub',
+            usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+            sh "docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}"
+            sh "docker build -t ${image_name}:${tag} ."
+            sh "docker push ${image_name}:${tag}"
+            sh "docker tag ${image_name}:${tag} ${image_name}:latest"
+            sh "docker push ${image_name}:latest"
+        }
+    }
+
+    stage("Deployment") {
+        ansiblePlaybook credentialsId: 'library-server',
+                        installation: 'Ansible',
+                        inventory: 'ansible/inventory/hosts',
+                        playbook: 'ansible/playbook.yaml'
     }
 }
