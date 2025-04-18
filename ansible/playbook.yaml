@@ -7,6 +7,8 @@
       ansible.builtin.ping:
 
 - name: Deploy library service container
+  hosts: webservers
+  become: yes
   vars:
     image_name: fabiomatcomp/library-service
     image_tag: latest  # or dynamically generated tag
@@ -15,19 +17,17 @@
     host_port: 8081
   tasks:
     - name: Pull Docker image from Docker Hub
-      community.docker.docker_image:
+      docker_image:
         name: "{{ image_name }}"
         tag: "{{ image_tag }}"
         source: pull
-
     - name: Stop and remove existing container (if any)
-      community.docker.docker_container:
+      docker_container:
         name: "{{ container_name }}"
         state: absent
         force_kill: true
-
     - name: Run Docker container
-      community.docker.docker_container:
+      docker_container:
         name: "{{ container_name }}"
         image: "{{ image_name }}:{{ image_tag }}"
         state: started
