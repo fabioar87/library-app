@@ -30,4 +30,8 @@ node('master'){
     stage('Build') {
         sh '/opt/maven/bin/mvn clean install'
     }
+
+    stage("Test ansible connectivity") {
+        sh 'ansible -i ansible/inventory/hosts ansible/playbook.yaml'
+    }
 }
