@@ -32,6 +32,6 @@ node('master'){
     }
 
     stage("Test ansible connectivity") {
-        sh 'ansible -i ansible/inventory/hosts ansible/playbook.yaml'
+        sh 'ansible-playbook -i ansible/inventory/hosts ansible/playbook.yaml'
     }
 }
