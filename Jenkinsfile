@@ -2,6 +2,9 @@ node('master'){
 
     environment {
         LIBRARY_APP_TOKEN = credentials('LIBRARY_APP_TOKEN')
+        DOCKERHUB_CREDENTIALS = credentials('docker-hub')
+        IMAGE_NAME = 'fabiomatcomp/library-service'
+        COMMIT_HASH = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
     }
 
     stage('Checkout'){
@@ -27,8 +30,19 @@ node('master'){
         sh '/opt/maven/bin/mvn org.owasp:dependency-check-maven:check'
     }
 
-    stage('Build') {
+    stage('Build artifact') {
         sh '/opt/maven/bin/mvn clean install'
+    }
+
+    stage('Build and push image') {
+        def tag = "${COMMIT_HASH}-${env.BUILD_NUMBER}"
+        sh '''
+            docker login -u $DOCKERHUB_CREDENTIALS_USR -p $DOCKERHUB_CREDENTIALS_PSW
+            docker build -t $IMAGE_NAME:$tag .
+            docker push $IMAGE_NAME:$tag
+            docker tag $IMAGE_NAME:$tag $IMAGE_NAME:latest
+            docker push $IMAGE_NAME:latest
+        '''
     }
 
     stage("Deployment") {
@@ -36,6 +50,5 @@ node('master'){
                         installation: 'Ansible',
                         inventory: 'ansible/inventory/hosts',
                         playbook: 'ansible/playbook.yaml'
-        // sh 'ansible-playbook -i ansible/inventory/hosts ansible/playbook.yaml'
     }
 }
