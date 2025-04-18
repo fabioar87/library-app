@@ -31,9 +31,11 @@ node('master'){
         sh '/opt/maven/bin/mvn clean install'
     }
 
-    stage("Test ansible connectivity") {
-        // sshagent(credentials: ['library-server']) {
-        sh 'ansible-playbook -i ansible/inventory/hosts ansible/playbook.yaml'
-        //}
+    stage("Deployment") {
+        ansiblePlaybook credentialsId: 'library-server',
+                        installation: 'Ansible',
+                        inventory: 'ansible/inventory/hosts',
+                        playbook: 'ansible/playbook.yaml'
+        // sh 'ansible-playbook -i ansible/inventory/hosts ansible/playbook.yaml'
     }
 }
