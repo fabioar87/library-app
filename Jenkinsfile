@@ -4,7 +4,6 @@ node('master'){
         LIBRARY_APP_TOKEN = credentials('LIBRARY_APP_TOKEN')
         DOCKERHUB_CREDENTIALS = credentials('docker-hub')
         IMAGE_NAME = 'fabiomatcomp/library-service'
-        COMMIT_HASH = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
     }
 
     stage('Checkout'){
@@ -35,7 +34,8 @@ node('master'){
     }
 
     stage('Build and push image') {
-        def tag = "${COMMIT_HASH}-${env.BUILD_NUMBER}"
+        def commitHash = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+        def tag = "${commitHash}-${env.BUILD_NUMBER}"
         sh '''
             docker login -u $DOCKERHUB_CREDENTIALS_USR -p $DOCKERHUB_CREDENTIALS_PSW
             docker build -t $IMAGE_NAME:$tag .
