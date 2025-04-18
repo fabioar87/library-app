@@ -10,7 +10,10 @@ node('master'){
 
     stage('Quality analysis') {
         withSonarQubeEnv('sonarqube') {
-            sh '/opt/maven/bin/mvn clean verify sonar:sonar -Dsonar.login=admin -Dsonar.password=$SONAR_TOKEN'
+            sh '''
+               export SONAR_TOKEN=${SONAR_TOKEN}
+               /opt/maven/bin/mvn clean verify sonar:sonar -Dsonar.login=admin -Dsonar.password=$SONAR_TOKEN
+            '''
         }
     }
 
