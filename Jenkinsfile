@@ -32,6 +32,8 @@ node('master'){
     }
 
     stage("Test ansible connectivity") {
-        sh 'ansible-playbook -i ansible/inventory/hosts ansible/playbook.yaml'
+        sshagent(credentials: ['library-server']) {
+            sh 'ansible-playbook -i ansible/inventory/hosts ansible/playbook.yaml'
+        }
     }
 }
