@@ -10,7 +10,11 @@ node('master'){
 
     stage('Quality analysis') {
         withSonarQubeEnv('sonarqube') {
-            sh '/opt/maven/bin/mvn clean verify sonar:sonar -Dsonar.projectKey=library-app'
+            sh '''
+                /opt/maven/bin/mvn clean verify sonar:sonar -Dsonar.projectKey=library-app \
+                    -Dsonar.host.url=http://sonar-lb-447063675.us-east-1.elb.amazonaws.com \
+                    -Dsonar.login=$SONAR_TOKEN
+                '''
         }
     }
 
