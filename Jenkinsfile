@@ -2,8 +2,7 @@ node('master'){
 
     environment {
         LIBRARY_APP_TOKEN = credentials('LIBRARY_APP_TOKEN')
-        DOCKERHUB_CREDENTIALS_PSW = credentials('docker-hub')
-        DOCKERHUB_CREDENTIALS_USR = 'fabiomatcomp'
+        DOCKERHUB_CREDENTIALS = 'docker-hub'
         IMAGE_NAME = 'fabiomatcomp/library-service'
     }
 
@@ -37,13 +36,17 @@ node('master'){
     stage('Build and push image') {
         def commitHash = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
         def tag = "${commitHash}-${env.BUILD_NUMBER}"
-        sh '''
-            echo $DOCKERHUB_CREDENTIALS_PSW | docker login --username $DOCKERHUB_CREDENTIALS_USR --password-stdin
-            docker build -t $IMAGE_NAME:$tag .
-            docker push $IMAGE_NAME:$tag
-            docker tag $IMAGE_NAME:$tag $IMAGE_NAME:latest
-            docker push $IMAGE_NAME:latest
-        '''
+
+        withCredentials([usernamePassword(credentialsId: DOCKERHUB_CREDENTIALS,
+            usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+            sh '''
+                docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}
+                docker build -t $IMAGE_NAME:$tag .
+                docker push $IMAGE_NAME:$tag
+                docker tag $IMAGE_NAME:$tag $IMAGE_NAME:latest
+                docker push $IMAGE_NAME:latest
+            '''
+        }
     }
 
     stage("Deployment") {
