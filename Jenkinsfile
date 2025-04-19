@@ -29,6 +29,7 @@ node('master'){
 
     stage('Build artifact') {
         sh '/opt/maven/bin/mvn clean install'
+
     }
 
     stage('Build and push image') {
